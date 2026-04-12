@@ -1,0 +1,47 @@
+{
+  "project": "wm-si-wafjs3.0",
+  "baseline": 5300,
+  "startedAt": "2026-04-11",
+  "lastRun": "2026-04-11T08:13:46.065Z",
+  "byRule": {
+    "javascript:S3504": {
+      "fixed": 23,
+      "runs": 2,
+      "lastCodemod": "no-var",
+      "note": "14 JS (jscodeshift) + 9 Vue (eslint)"
+    },
+    "javascript:S1940": {
+      "fixed": 51,
+      "runs": 2,
+      "lastCodemod": "eqeqeq",
+      "note": "42 JS (jscodeshift) + 9 Vue (eslint)"
+    },
+    "javascript:S1116": {
+      "fixed": 4,
+      "runs": 1,
+      "lastCodemod": "no-empty-stmt"
+    },
+    "javascript:S6853": {
+      "fixed": 19,
+      "runs": 1,
+      "lastCodemod": "no-useless-concat"
+    },
+    "javascript:S1481": {
+      "fixed": 34,
+      "runs": 2,
+      "lastCodemod": "no-unused-vars"
+    },
+    "javascript:S1854": {
+      "fixed": 8,
+      "runs": 2,
+      "lastCodemod": "no-dead-assign"
+    },
+    "javascript:S6777": {
+      "fixed": 48,
+      "runs": 1,
+      "lastCodemod": "window-to-globalthis"
+    }
+  },
+  "fixed": [],
+  "skipped": []
+}
