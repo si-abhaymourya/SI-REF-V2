@@ -1,0 +1,5 @@
+{
+  "projectKey": "YOUR-PROJECT-KEY",
+  "buildCommand": "npm run build",
+  "skipRules": []
+}

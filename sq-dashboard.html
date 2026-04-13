@@ -1,305 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SI Referee v2 — SonarQube Dashboard</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SI Referee — Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            sonar: { bg: '#1a1f2e', card: '#242938', border: '#2e3650', accent: '#f37021' }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    body { background: #1a1f2e; }
-    .card { background: #242938; border: 1px solid #2e3650; }
-    .bar-fill { transition: width 1s ease-out; }
-    .pill-fixed    { background: #14532d; color: #4ade80; }
-    .pill-escalated{ background: #7c2d12; color: #fb923c; }
-    .pill-pending  { background: #1e3a5f; color: #60a5fa; }
-    .pill-safe     { background: #14532d; color: #4ade80; }
-    .pill-unsafe   { background: #7c2d12; color: #fb923c; }
-    @keyframes countUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    .count-animate { animation: countUp 0.6s ease-out forwards; }
+    body { background: #0d1117; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+    .card  { background: #161b22; border: 1px solid #21262d; }
+    .bar   { transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .pulse { animation: pulse 1.8s infinite; }
+    .m-codemod { background:#0d2137; color:#58a6ff; border:1px solid #1f4b7a; }
+    .m-ai      { background:#1a0a2e; color:#d2a8ff; border:1px solid #3d1f6e; }
+    .m-review  { background:#2d1400; color:#f0883e; border:1px solid #6a2f00; }
+    .m-pending { background:#161b22; color:#484f58; border:1px solid #21262d; }
+    .s-fixed   { background:#0d2818; color:#3fb950; border:1px solid #1a5c30; }
+    .s-pending { background:#161b22; color:#8b949e; border:1px solid #21262d; }
+    .s-escalated { background:#2d1600; color:#f0883e; border:1px solid #6a2f00; }
   </style>
 </head>
-<body class="text-gray-100 min-h-screen p-6 font-mono">
+<body class="text-gray-300 min-h-screen">
+
+<div class="max-w-7xl mx-auto px-5 py-6">
 
   <!-- Header -->
-  <div class="max-w-7xl mx-auto">
-    <div class="flex items-center justify-between mb-2">
-      <div>
-        <h1 class="text-2xl font-bold text-white">SI Referee <span class="text-orange-400">v2</span></h1>
-        <p class="text-gray-400 text-sm mt-1">SonarQube Automation — FIH-NUXT · branch: fix/FIH-S2</p>
+  <div class="flex items-start justify-between mb-7">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-lg font-semibold text-white">SI Referee</h1>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300 border border-blue-700" id="hProject">—</span>
+        <span class="text-xs text-gray-600" id="hBranch">—</span>
       </div>
-      <div class="text-right">
-        <div class="text-xs text-gray-500">Generated</div>
-        <div class="text-sm text-gray-300" id="genDate"></div>
-      </div>
-    </div>
-
-    <!-- Top KPI bar -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-8">
-      <div class="card rounded-xl p-5">
-        <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">Issues Fixed</div>
-        <div class="text-3xl font-bold text-green-400 count-animate" id="kpi-fixed">—</div>
-        <div class="text-xs text-gray-500 mt-1">of <span id="kpi-baseline">—</span> baseline</div>
-      </div>
-      <div class="card rounded-xl p-5">
-        <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">Reliability</div>
-        <div class="flex items-end gap-2">
-          <div class="text-3xl font-bold text-blue-400 count-animate" id="kpi-rel-now">—</div>
-          <div class="text-sm text-gray-500 mb-1">from <span id="kpi-rel-base" class="line-through">—</span></div>
-        </div>
-        <div class="w-full bg-gray-700 rounded h-1.5 mt-2">
-          <div class="bg-blue-400 h-1.5 rounded bar-fill" id="bar-rel" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="card rounded-xl p-5">
-        <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">Maintainability</div>
-        <div class="flex items-end gap-2">
-          <div class="text-3xl font-bold text-purple-400 count-animate" id="kpi-maint-now">—</div>
-          <div class="text-sm text-gray-500 mb-1">from <span id="kpi-maint-base" class="line-through">—</span></div>
-        </div>
-        <div class="w-full bg-gray-700 rounded h-1.5 mt-2">
-          <div class="bg-purple-400 h-1.5 rounded bar-fill" id="bar-maint" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="card rounded-xl p-5">
-        <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">Tokens Used</div>
-        <div class="text-3xl font-bold text-orange-400 count-animate" id="kpi-tokens">—</div>
-        <div class="text-xs text-gray-500 mt-1">Tier 1 = 0 AI tokens</div>
+      <div class="text-xs text-gray-600 mt-1">
+        build: <span class="text-gray-500" id="hCmd">—</span>
+        &nbsp;·&nbsp; updated <span id="hDate">—</span>
+        &nbsp;·&nbsp; <span class="text-gray-700">auto-refresh 30s</span>
       </div>
     </div>
-
-    <!-- Progress bar overall -->
-    <div class="card rounded-xl p-5 mb-8">
-      <div class="flex justify-between text-sm mb-2">
-        <span class="text-gray-300 font-semibold">Overall Progress</span>
-        <span class="text-gray-400" id="progress-label">—</span>
-      </div>
-      <div class="w-full bg-gray-700 rounded-full h-3">
-        <div class="h-3 rounded-full bar-fill" id="bar-overall"
-             style="width:0%; background: linear-gradient(90deg, #4ade80, #f37021)"></div>
-      </div>
-      <div class="flex justify-between text-xs text-gray-500 mt-2">
-        <span>0</span>
-        <span id="progress-max">—</span>
-      </div>
-    </div>
-
-    <!-- Two column: Tier 1 + Tier 2 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
-      <!-- Tier 1 -->
-      <div class="card rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-lg font-bold text-white">Tier 1 — Codemod / Silent</h2>
-            <p class="text-xs text-gray-400 mt-0.5">jscodeshift AST transforms · zero AI tokens · zero prompts</p>
-          </div>
-          <span class="pill-fixed text-xs font-bold px-3 py-1 rounded-full" id="t1-badge">—</span>
-        </div>
-        <div id="tier1-rules" class="space-y-3"></div>
-      </div>
-
-      <!-- Tier 2 -->
-      <div class="card rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-lg font-bold text-white">Tier 2 — Batch Confirm</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Classifier · one confirmation per rule · escalates on safe=false</p>
-          </div>
-          <span class="pill-fixed text-xs font-bold px-3 py-1 rounded-full" id="t2-badge">—</span>
-        </div>
-        <div id="tier2-rules" class="space-y-3"></div>
-      </div>
-    </div>
-
-    <!-- Tier 3 Queue -->
-    <div class="card rounded-xl p-6 mb-8">
-      <h2 class="text-lg font-bold text-white mb-1">Tier 3 Queue — Human Review</h2>
-      <p class="text-xs text-gray-400 mb-4">Rules escalated from Tier 2 (classifier safe=false) or requiring logic changes</p>
-      <div id="tier3-rules" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-    </div>
-
-    <!-- Codemod Inventory -->
-    <div class="card rounded-xl p-6 mb-8">
-      <h2 class="text-lg font-bold text-white mb-4">Codemod Inventory</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="codemod-list"></div>
-    </div>
-
-    <!-- Commits -->
-    <div class="card rounded-xl p-6 mb-8">
-      <h2 class="text-lg font-bold text-white mb-4">Commits</h2>
-      <div id="commits-list" class="space-y-2"></div>
-    </div>
-
-    <!-- Footer -->
-    <div class="text-center text-xs text-gray-600 pb-6">
-      SI Referee v2 · Powered by jscodeshift + Claude · Data source: sq-dashboard-data.json
+    <div id="sessionBadge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-950 border border-green-800">
+      <span class="w-2 h-2 rounded-full bg-green-400 pulse inline-block"></span>
+      <span class="text-xs text-green-400 font-medium">Running</span>
     </div>
   </div>
 
-  <script>
-    async function loadData() {
-      const res = await fetch('./sq-dashboard-data.json');
-      return res.json();
+  <!-- Progress bar -->
+  <div class="card rounded-xl p-4 mb-5">
+    <div class="flex justify-between text-xs mb-2">
+      <span class="text-gray-500">Issue Resolution</span>
+      <span class="text-white font-medium" id="progPct">—</span>
+    </div>
+    <div class="w-full bg-gray-900 rounded-full h-2.5">
+      <div id="progBar" class="bar h-2.5 rounded-full bg-gradient-to-r from-blue-600 to-emerald-500" style="width:0%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-600 mt-1.5">
+      <span>Baseline <span class="text-gray-500" id="progBase">—</span></span>
+      <span><span class="text-gray-500" id="progFixed">—</span> fixed &nbsp;·&nbsp; <span class="text-gray-500" id="progRemain">—</span> remaining</span>
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-gray-600 uppercase tracking-widest mb-2">Issues Fixed</div>
+      <div class="text-3xl font-bold text-emerald-400" id="kpiFixed">—</div>
+      <div class="text-xs text-gray-600 mt-1"><span id="kpiFixedPct">—</span>% resolved</div>
+    </div>
+    <div class="card rounded-xl p-4 border-blue-900">
+      <div class="text-xs text-gray-600 uppercase tracking-widest mb-2">Tokens Saved</div>
+      <div class="text-3xl font-bold text-blue-400" id="kpiSaved">—</div>
+      <div class="text-xs text-gray-600 mt-1"><span id="kpiSavedPct">—</span>% vs naive</div>
+    </div>
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-gray-600 uppercase tracking-widest mb-2">Builds Passed</div>
+      <div class="text-3xl font-bold text-yellow-400" id="kpiBuild">—</div>
+      <div class="text-xs text-gray-600 mt-1" id="kpiBuildSub">batches</div>
+    </div>
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-gray-600 uppercase tracking-widest mb-2">Remaining</div>
+      <div class="text-3xl font-bold text-orange-400" id="kpiRemain">—</div>
+      <div class="text-xs text-gray-600 mt-1">open in SonarQube</div>
+    </div>
+  </div>
+
+  <!-- Session panel (only when running) -->
+  <div id="sessionCard" class="card rounded-xl p-4 mb-5 border-green-900 hidden">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div>
+        <div class="text-xs text-gray-600 mb-1">Current Rule</div>
+        <div class="text-white font-mono text-sm" id="sesRule">—</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-600 mb-1">Step</div>
+        <div class="text-gray-300" id="sesStep">—</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-600 mb-1">Batch <span id="sesBatchN">0</span> / <span id="sesBatchMax">20</span></div>
+        <div class="w-full bg-gray-900 rounded h-2 mt-2">
+          <div id="sesBatchBar" class="bar h-2 rounded bg-green-500" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- Rules table -->
+    <div class="lg:col-span-2">
+      <div class="text-xs text-gray-600 uppercase tracking-widest mb-3">Rules</div>
+      <div class="card rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-800">
+              <th class="text-left px-4 py-3 text-xs text-gray-600 font-normal">Rule</th>
+              <th class="text-left px-4 py-3 text-xs text-gray-600 font-normal hidden md:table-cell">Description</th>
+              <th class="text-right px-4 py-3 text-xs text-gray-600 font-normal">Issues</th>
+              <th class="text-center px-4 py-3 text-xs text-gray-600 font-normal">Method</th>
+              <th class="text-center px-4 py-3 text-xs text-gray-600 font-normal">Status</th>
+            </tr>
+          </thead>
+          <tbody id="rulesBody">
+            <tr><td colspan="5" class="text-center py-10 text-gray-600 text-sm">No data yet — run /sq-fix-issues to start</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+
+      <!-- Batch history -->
+      <div>
+        <div class="text-xs text-gray-600 uppercase tracking-widest mb-3">Batch History</div>
+        <div class="space-y-2" id="batchList">
+          <div class="card rounded-xl p-3 text-center text-gray-600 text-xs">No batches yet</div>
+        </div>
+      </div>
+
+      <!-- Token breakdown -->
+      <div class="card rounded-xl p-4">
+        <div class="text-xs text-gray-600 uppercase tracking-widest mb-3">Token Breakdown</div>
+        <div class="space-y-2.5">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Actually used</span>
+            <span class="text-gray-300 tabular-nums" id="tokUsed">—</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Naive estimate</span>
+            <span class="text-gray-600 line-through tabular-nums" id="tokNaive">—</span>
+          </div>
+          <div class="flex justify-between text-sm border-t border-gray-800 pt-2.5">
+            <span class="text-blue-300 font-medium">Saved</span>
+            <span class="text-blue-300 font-bold tabular-nums" id="tokSaved">—</span>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-800 text-xs text-gray-700 leading-relaxed">
+          Naive = issues fixed × 500 tokens.<br>
+          Codemod = 0 tokens (AST, runs locally).<br>
+          Actual = codemod gen + AI fixes + rule fetches.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const fmt = n => {
+    if (!n) return '0';
+    if (n >= 1e6) return (n/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
+    if (n >= 1e3) return Math.round(n/1e3) + 'k';
+    return String(n);
+  };
+  const pct = (a, b) => b ? Math.round((a / b) * 100) : 0;
+
+  function render(d) {
+    document.getElementById('hProject').textContent = d.project || '—';
+    document.getElementById('hBranch').textContent  = d.branch || '';
+    document.getElementById('hCmd').textContent     = d.buildCommand || '—';
+    document.getElementById('hDate').textContent    = d.generatedAt || '—';
+
+    const total   = d.baseline?.total || 0;
+    const current = d.current?.total  || 0;
+    const fixed   = total - current;
+    const fixedPct = pct(fixed, total);
+
+    document.getElementById('progBar').style.width = fixedPct + '%';
+    document.getElementById('progPct').textContent    = fixedPct + '%';
+    document.getElementById('progBase').textContent   = total.toLocaleString();
+    document.getElementById('progFixed').textContent  = fixed.toLocaleString();
+    document.getElementById('progRemain').textContent = current.toLocaleString();
+
+    document.getElementById('kpiFixed').textContent    = fixed.toLocaleString();
+    document.getElementById('kpiFixedPct').textContent = fixedPct;
+    document.getElementById('kpiRemain').textContent   = current.toLocaleString();
+
+    const tok = d.tokens || {};
+    document.getElementById('kpiSaved').textContent    = tok.saved ? '~' + fmt(tok.saved) : '—';
+    document.getElementById('kpiSavedPct').textContent = tok.naiveEstimate ? pct(tok.saved, tok.naiveEstimate) : '—';
+
+    const batches = d.batches || [];
+    const passed  = batches.filter(b => b.buildStatus === 'pass').length;
+    document.getElementById('kpiBuild').textContent    = batches.length ? (passed + '/' + batches.length) : '—';
+    document.getElementById('kpiBuildSub').textContent = batches.length === 1 ? 'batch' : 'batches';
+
+    const ses       = d.session || {};
+    const isRunning = ses.status === 'running';
+    document.getElementById('sessionBadge').classList.toggle('hidden', !isRunning);
+    document.getElementById('sessionBadge').classList.toggle('flex', isRunning);
+    document.getElementById('sessionCard').classList.toggle('hidden', !isRunning);
+    if (isRunning) {
+      document.getElementById('sesRule').textContent = ses.currentRule || '—';
+      document.getElementById('sesStep').textContent = ses.currentStep || '—';
+      const bMax = ses.batchSize || 20;
+      const bN   = ses.batchCounter || 0;
+      document.getElementById('sesBatchN').textContent   = bN;
+      document.getElementById('sesBatchMax').textContent = bMax;
+      document.getElementById('sesBatchBar').style.width = pct(bN, bMax) + '%';
     }
 
-    function fmt(n) {
-      return n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(n);
-    }
-
-    function statusPill(status) {
-      if (status === 'fixed') return '<span class="pill-fixed text-xs px-2 py-0.5 rounded-full font-semibold">✓ fixed</span>';
-      if (status === 'escalated_tier3') return '<span class="pill-escalated text-xs px-2 py-0.5 rounded-full font-semibold">→ tier 3</span>';
-      return '<span class="pill-pending text-xs px-2 py-0.5 rounded-full font-semibold">pending</span>';
-    }
-
-    function classifierPill(result) {
-      if (!result) return '';
-      if (result === 'safe') return '<span class="pill-safe text-xs px-2 py-0.5 rounded-full">safe ✓</span>';
-      return '<span class="pill-unsafe text-xs px-2 py-0.5 rounded-full">safe=false ✗</span>';
-    }
-
-    function renderTier1Rule(r) {
-      const pct = Math.min(100, Math.round(r.issuesFixed / 10));
-      return `
-        <div class="bg-gray-800 rounded-lg p-3">
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <code class="text-orange-300 text-xs">${r.rule}</code>
-                ${statusPill(r.status)}
-              </div>
-              <div class="text-gray-300 text-sm mt-0.5">${r.description}</div>
-              <div class="text-gray-500 text-xs mt-0.5">codemod: <code class="text-gray-400">${r.codemod}</code></div>
-              ${r.notes ? `<div class="text-gray-500 text-xs mt-1 italic">${r.notes}</div>` : ''}
+    document.getElementById('batchList').innerHTML = batches.length === 0
+      ? '<div class="card rounded-xl p-3 text-center text-gray-600 text-xs">No batches yet</div>'
+      : batches.slice().reverse().slice(0, 8).map(b => `
+          <div class="card rounded-xl px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <div class="text-xs text-gray-600">Batch #${b.n}</div>
+              <div class="text-sm text-gray-300">${b.issues} issues</div>
             </div>
-            <div class="text-right shrink-0">
-              <div class="text-green-400 font-bold text-lg">${r.issuesFixed}</div>
-              <div class="text-gray-500 text-xs">${r.filesChanged} files</div>
+            <span class="text-base">${b.buildStatus === 'pass' ? '✅' : '❌'}</span>
+            <div class="text-right">
+              <div class="text-xs font-mono text-gray-600">${(b.commit || '').slice(0,9)}</div>
+              <div class="text-xs text-gray-700">${b.timestamp || ''}</div>
             </div>
-          </div>
-          <div class="w-full bg-gray-700 rounded h-1 mt-2">
-            <div class="bg-green-500 h-1 rounded bar-fill" style="width:${pct}%"></div>
-          </div>
-        </div>`;
+          </div>`).join('');
+
+    document.getElementById('tokUsed').textContent  = tok.used          ? '~' + fmt(tok.used)         : '—';
+    document.getElementById('tokNaive').textContent = tok.naiveEstimate  ? '~' + fmt(tok.naiveEstimate) : '—';
+    document.getElementById('tokSaved').textContent = tok.saved          ? '~' + fmt(tok.saved)         : '—';
+
+    const rules = d.rules || [];
+    document.getElementById('rulesBody').innerHTML = rules.length === 0
+      ? '<tr><td colspan="5" class="text-center py-10 text-gray-600 text-sm">No data yet — run /sq-fix-issues to start</td></tr>'
+      : rules.map(r => {
+          const mCls = r.method === 'codemod' ? 'm-codemod' : r.method === 'ai' ? 'm-ai' : r.method === 'review' ? 'm-review' : 'm-pending';
+          const sCls = r.status  === 'fixed'  ? 's-fixed'   : r.status  === 'pending'    ? 's-pending' : 's-escalated';
+          return `
+            <tr class="border-t border-gray-900 hover:bg-gray-900/50 transition-colors">
+              <td class="px-4 py-2.5 font-mono text-xs text-blue-400 whitespace-nowrap">${r.rule}</td>
+              <td class="px-4 py-2.5 text-gray-500 text-xs hidden md:table-cell max-w-xs truncate">${r.description || ''}</td>
+              <td class="px-4 py-2.5 text-right text-gray-400 tabular-nums text-sm">${(r.instances || 0).toLocaleString()}</td>
+              <td class="px-4 py-2.5 text-center">
+                <span class="px-2 py-0.5 rounded text-xs font-mono ${mCls}">${r.method || 'pending'}</span>
+              </td>
+              <td class="px-4 py-2.5 text-center">
+                <span class="px-2 py-0.5 rounded text-xs ${sCls}">${r.status || 'pending'}</span>
+              </td>
+            </tr>`;
+        }).join('');
+  }
+
+  async function load() {
+    try {
+      const res = await fetch('sq-dashboard-data.json?t=' + Date.now());
+      if (!res.ok) throw new Error(res.status);
+      render(await res.json());
+    } catch(e) {
+      console.warn('Dashboard load failed:', e);
     }
+  }
 
-    function renderTier2Rule(r) {
-      return `
-        <div class="bg-gray-800 rounded-lg p-3">
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <code class="text-orange-300 text-xs">${r.rule}</code>
-                ${statusPill(r.status)}
-                ${r.classifierResult ? classifierPill(r.classifierResult === 'safe' ? 'safe' : 'unsafe') : ''}
-              </div>
-              <div class="text-gray-300 text-sm mt-0.5">${r.description}</div>
-              ${r.classifierReason ? `<div class="text-gray-500 text-xs mt-1 italic">"${r.classifierReason}"</div>` : ''}
-              ${r.notes ? `<div class="text-gray-400 text-xs mt-1">${r.notes}</div>` : ''}
-            </div>
-            <div class="text-right shrink-0">
-              <div class="${r.status === 'fixed' ? 'text-green-400' : 'text-orange-400'} font-bold text-lg">
-                ${r.status === 'fixed' ? r.issuesFixed : r.issuesFixed === 0 ? '—' : r.issuesFixed}
-              </div>
-              <div class="text-gray-500 text-xs">${r.filesChanged > 0 ? r.filesChanged + ' files' : 'queued'}</div>
-            </div>
-          </div>
-        </div>`;
-    }
+  load();
+  setInterval(load, 30000);
+</script>
 
-    function renderTier3Rule(r) {
-      return `
-        <div class="bg-gray-800 rounded-lg p-3 border border-orange-900/30">
-          <div class="flex items-center justify-between">
-            <code class="text-orange-300 text-xs">${r.rule}</code>
-            <span class="text-orange-400 font-bold">${r.issues}</span>
-          </div>
-          <div class="text-gray-400 text-xs mt-1">${r.reason}</div>
-        </div>`;
-    }
-
-    function renderCodemod(c) {
-      const tierColor = c.tier === 1 ? 'text-green-400 bg-green-900/30' : 'text-blue-400 bg-blue-900/30';
-      return `
-        <div class="bg-gray-800 rounded-lg p-3">
-          <div class="flex items-center justify-between mb-1">
-            <code class="text-gray-300 text-xs">${c.file}</code>
-            <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${tierColor}">T${c.tier}</span>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            ${c.rules.map(r => `<code class="text-xs text-orange-400 bg-gray-700 px-1.5 py-0.5 rounded">${r}</code>`).join('')}
-          </div>
-        </div>`;
-    }
-
-    function renderCommit(c) {
-      return `
-        <div class="flex items-center gap-3">
-          <code class="text-orange-400 text-xs shrink-0">${c.hash.slice(0,8)}</code>
-          <span class="text-gray-300 text-sm">${c.message}</span>
-        </div>`;
-    }
-
-    async function init() {
-      const d = await loadData();
-
-      document.getElementById('genDate').textContent = d.generatedAt;
-
-      // KPIs
-      const fixed = d.baseline.totalIssues - d.current.totalIssues;
-      document.getElementById('kpi-fixed').textContent = fixed.toLocaleString();
-      document.getElementById('kpi-baseline').textContent = d.baseline.totalIssues.toLocaleString();
-      document.getElementById('kpi-rel-now').textContent = d.current.reliability;
-      document.getElementById('kpi-rel-base').textContent = d.baseline.reliability;
-      document.getElementById('kpi-maint-now').textContent = fmt(d.current.maintainability);
-      document.getElementById('kpi-maint-base').textContent = fmt(d.baseline.maintainability);
-      document.getElementById('kpi-tokens').textContent = d.tokensUsed.total.toLocaleString();
-
-      // Progress bars (lower is better for issues)
-      setTimeout(() => {
-        const relPct = 100 - Math.round((d.current.reliability / d.baseline.reliability) * 100);
-        const maintPct = 100 - Math.round((d.current.maintainability / d.baseline.maintainability) * 100);
-        document.getElementById('bar-rel').style.width = relPct + '%';
-        document.getElementById('bar-maint').style.width = maintPct + '%';
-
-        const overallPct = Math.round((fixed / d.baseline.totalIssues) * 100);
-        document.getElementById('bar-overall').style.width = overallPct + '%';
-        document.getElementById('progress-label').textContent = `${fixed.toLocaleString()} fixed (${overallPct}%)`;
-        document.getElementById('progress-max').textContent = d.baseline.totalIssues.toLocaleString();
-      }, 200);
-
-      // Tier 1
-      const t1Fixed = d.tier1.rules.reduce((s, r) => s + r.issuesFixed, 0);
-      document.getElementById('t1-badge').textContent = t1Fixed.toLocaleString() + ' issues';
-      document.getElementById('tier1-rules').innerHTML = d.tier1.rules.map(renderTier1Rule).join('');
-
-      // Tier 2
-      const t2Fixed = d.tier2.rules.filter(r => r.status === 'fixed').reduce((s, r) => s + r.issuesFixed, 0);
-      document.getElementById('t2-badge').textContent = t2Fixed + ' issues';
-      document.getElementById('tier2-rules').innerHTML = d.tier2.rules.map(renderTier2Rule).join('');
-
-      // Tier 3 queue
-      document.getElementById('tier3-rules').innerHTML = d.tier3_queue.map(renderTier3Rule).join('');
-
-      // Codemods
-      document.getElementById('codemod-list').innerHTML = d.codemodInventory.map(renderCodemod).join('');
-
-      // Commits
-      document.getElementById('commits-list').innerHTML = d.commits.map(renderCommit).join('');
-    }
-
-    init();
-  </script>
 </body>
 </html>

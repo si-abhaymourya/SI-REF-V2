@@ -1,286 +1,31 @@
 {
-  "project": "FIH-NUXT",
-  "branch": "fix/FIH-S2",
-  "generatedAt": "2026-04-13",
-  "tokensUsed": {
-    "tier1": 6000,
-    "tier2": 6000,
-    "total": 12000,
-    "note": "Tier 1 = zero AI tokens on codemods. Token cost is orchestration + classifier calls only."
-  },
+  "project": "YOUR-PROJECT-KEY",
+  "branch": "fix/sonar",
+  "generatedAt": null,
+  "buildCommand": "npm run lint",
   "baseline": {
-    "reliability": 849,
-    "maintainability": 4700,
-    "securityHotspots": 107,
-    "totalIssues": 5300
+    "total": 0,
+    "reliability": 0,
+    "maintainability": 0
   },
   "current": {
-    "reliability": 352,
-    "maintainability": 2568,
-    "securityHotspots": 106,
-    "totalIssues": 2795
+    "total": 0,
+    "reliability": 0,
+    "maintainability": 0
   },
-  "commits": [
-    { "hash": "4dcfa9e4d", "message": "fix(sonar): tier 1 codemods — S3504 + S1764 — 16 files" },
-    { "hash": "89c5a6a05", "message": "fix(sonar): tier 1 codemods — S7764/S7781/S7773/S6582/S2486/S1940/S3403 — 109 files" },
-    { "hash": "618e2c40c", "message": "fix(sonar): tier 2 batch — S1126/S1128/S1763/S1135 — 70+ files" },
-    { "hash": "b5cfacd52", "message": "fix(sonar): tier 1 codemods — 14 new rules — 58 files" },
-    { "hash": "61b33c7d9", "message": "fix(sonar): tier 1 codemods — S6325/S6353 — 11 files" },
-    { "hash": "0c407af42", "message": "fix(sonar): tier 2 codemods — s6535/s7778/s6660 — 27 files" }
-  ],
-  "tier1": {
-    "label": "Codemod / Silent",
-    "description": "jscodeshift AST transforms. Zero AI tokens. Zero developer prompts.",
-    "totalIssuesFixed": 2341,
-    "totalFilesChanged": 125,
-    "rules": [
-      {
-        "rule": "javascript:S7764",
-        "description": "window → globalThis",
-        "codemod": "window-to-globalthis.js",
-        "issuesFixed": 950,
-        "filesChanged": 70,
-        "status": "fixed",
-        "notes": "Largest single fix. JS + Vue files via script-block extraction."
-      },
-      {
-        "rule": "javascript:S6582",
-        "description": "x && x.y → x?.y (optional chaining)",
-        "codemod": "optional-chain.js",
-        "issuesFixed": 365,
-        "filesChanged": 29,
-        "status": "fixed",
-        "notes": "Conservative — identifier guard only. No Vue files affected."
-      },
-      {
-        "rule": "javascript:S7781",
-        "description": "String#replace → String#replaceAll",
-        "codemod": "replaceall.js",
-        "issuesFixed": 341,
-        "filesChanged": 44,
-        "status": "fixed",
-        "notes": "Smart regex→string conversion: /pat/g → 'pat' when no special chars. Complex patterns keep regex."
-      },
-      {
-        "rule": "javascript:S2486",
-        "description": "Empty catch block → annotate",
-        "codemod": "fix-empty-catch.js",
-        "issuesFixed": 325,
-        "filesChanged": 23,
-        "status": "fixed",
-        "notes": "Annotates with comment instead of deleting — preserves exception propagation."
-      },
-      {
-        "rule": "javascript:S7773",
-        "description": "parseInt → Number.parseInt",
-        "codemod": "number-parseint.js",
-        "issuesFixed": 188,
-        "filesChanged": 21,
-        "status": "fixed",
-        "notes": "Also covers parseFloat → Number.parseFloat."
-      },
-      {
-        "rule": "javascript:S3504",
-        "description": "var → let / const",
-        "codemod": "no-var.js",
-        "issuesFixed": 165,
-        "filesChanged": 15,
-        "status": "fixed",
-        "notes": "Scope-aware: assigns const if never reassigned, let otherwise. 1 manual fix for shadowed param."
-      },
-      {
-        "rule": "javascript:S1764",
-        "description": "Identical expressions in binary op",
-        "codemod": "no-identical-expr.js",
-        "issuesFixed": 4,
-        "filesChanged": 3,
-        "status": "fixed",
-        "notes": "Bonus: fixed missing return in .filter() callback — actual bug, not just style."
-      },
-      {
-        "rule": "javascript:S1940 / S3403",
-        "description": "== → === / != → !==",
-        "codemod": "eqeqeq.js",
-        "issuesFixed": 3,
-        "filesChanged": 3,
-        "status": "fixed",
-        "notes": "Skips null/undefined checks — x == null is intentional (checks both null and undefined)."
-      }
-    ]
+  "tokens": {
+    "used": 0,
+    "naiveEstimate": 0,
+    "saved": 0,
+    "note": "Naive = issues_fixed × 500 tokens (one AI call each). Codemod runs = 0 tokens. Actual = codemod gen + AI fixes + rule fetches only."
   },
-  "tier2": {
-    "label": "Batch Confirm",
-    "description": "Classifier runs once per rule. One developer confirmation per rule family.",
-    "rules": [
-      {
-        "rule": "javascript:S1126",
-        "description": "if(cond) return true/false → return cond",
-        "codemod": "return-boolean.js",
-        "issuesFixed": 48,
-        "filesChanged": 29,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Mechanical if→return boolean transforms with no side effects, no dynamic access.",
-        "notes": "New codemod written. Handles Pattern A (if/else) and Pattern B (if + fallthrough)."
-      },
-      {
-        "rule": "javascript:S1128",
-        "description": "Unused named imports",
-        "codemod": "no-unused-imports.js",
-        "issuesFixed": 80,
-        "filesChanged": 25,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Named imports unused in file — pure dead code removal.",
-        "notes": "Fixed false-positive bug: ImportSpecifier.imported was leaking into usedNames set."
-      },
-      {
-        "rule": "javascript:S1763",
-        "description": "Unreachable code after return/throw",
-        "codemod": "no-unreachable.js",
-        "issuesFixed": 68,
-        "filesChanged": 15,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Unreachable code cannot affect runtime — safe to delete.",
-        "notes": "Some introduced by our fix-empty-catch codemod adding void 0 after existing returns."
-      },
-      {
-        "rule": "javascript:S1135",
-        "description": "TODO comments",
-        "codemod": null,
-        "issuesFixed": 3,
-        "filesChanged": 3,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Stale TODO comments with no associated ticket.",
-        "notes": "Manual removal. 3 files: RelatedVideos.vue, widget-layout-01.vue, filterSearch.vue."
-      },
-      {
-        "rule": "javascript:S6535",
-        "description": "Unnecessary escape character in regex",
-        "codemod": "no-redundant-escape.js",
-        "issuesFixed": 65,
-        "filesChanged": 11,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Mechanical: chars with no special regex meaning (. + * \" -) don't need backslash escape.",
-        "notes": "Handles chars outside char class and inside [...]. Skips \\- between chars to avoid range ambiguity."
-      },
-      {
-        "rule": "javascript:S7778",
-        "description": "Multiple .push()/.classList.add() calls",
-        "codemod": "no-multi-push.js",
-        "issuesFixed": 17,
-        "filesChanged": 3,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Consecutive same-method calls on same receiver — merging args is semantically identical.",
-        "notes": "Merges classList.add('a');classList.add('b') → classList.add('a','b'). Also push()."
-      },
-      {
-        "rule": "javascript:S6660",
-        "description": "if as only stmt in else block → else if",
-        "codemod": "else-if.js",
-        "issuesFixed": 28,
-        "filesChanged": 16,
-        "status": "fixed",
-        "classifierResult": "safe",
-        "classifierReason": "Pure structural collapse — else { if (x) {...} } → else if (x) {...}. No semantic change.",
-        "notes": "Only collapses when else block contains exactly one IfStatement."
-      },
-      {
-        "rule": "javascript:S1854",
-        "description": "Dead store / useless assignment",
-        "codemod": "no-dead-assign.js",
-        "issuesFixed": 0,
-        "filesChanged": 0,
-        "status": "escalated_tier3",
-        "classifierResult": "safe=false",
-        "classifierReason": "RHS values are side-effectful (async API calls, Swiper constructor) — removing would delete necessary side-effect invocations.",
-        "notes": "119 issues remain. Needs per-issue human review."
-      },
-      {
-        "rule": "javascript:S1481",
-        "description": "Unused local variable",
-        "codemod": "no-unused-vars.js",
-        "issuesFixed": 0,
-        "filesChanged": 0,
-        "status": "escalated_tier3",
-        "classifierResult": "safe=false",
-        "classifierReason": "Same pattern as S1854 — unused variable but side-effectful RHS. Codemod would delete the call entirely.",
-        "notes": "112 issues remain. Fix: keep RHS as bare expression, remove declaration."
-      },
-      {
-        "rule": "javascript:S905",
-        "description": "Expression with no side effect",
-        "codemod": null,
-        "issuesFixed": 0,
-        "filesChanged": 0,
-        "status": "escalated_tier3",
-        "classifierResult": "safe=false",
-        "classifierReason": "Mixed patterns — some discarded ternary results (dead), others may be intentional void-like usage.",
-        "notes": "72 issues remain. Needs per-issue decision."
-      },
-      {
-        "rule": "javascript:S4144",
-        "description": "Duplicate function implementation",
-        "codemod": null,
-        "issuesFixed": 0,
-        "filesChanged": 0,
-        "status": "escalated_tier3",
-        "classifierResult": "safe=false",
-        "classifierReason": "Deduplication requires identifying canonical function and updating all call sites.",
-        "notes": "26 issues remain. Needs manual refactor."
-      }
-    ]
+  "session": {
+    "status": "idle",
+    "currentRule": null,
+    "currentStep": null,
+    "batchCounter": 0,
+    "batchSize": 20
   },
-  "tier3_queue": [
-    { "rule": "javascript:S1854", "issues": 119, "reason": "Side-effectful RHS — keep call, drop declaration" },
-    { "rule": "javascript:S1481", "issues": 112, "reason": "Side-effectful RHS — same as S1854" },
-    { "rule": "javascript:S905",  "issues": 72,  "reason": "Mixed: dead expression vs intentional" },
-    { "rule": "javascript:S3358", "issues": 110, "reason": "Nested ternary — requires logic restructure" },
-    { "rule": "javascript:S3776", "issues": 0,   "reason": "Cognitive complexity — real refactor needed" },
-    { "rule": "javascript:S4144", "issues": 26,  "reason": "Duplicate function — call site analysis required" },
-    { "rule": "javascript:S125",  "issues": 545, "reason": "Commented-out code — HTML + JS comments, template risk" },
-    { "rule": "javascript:S1121", "issues": 94,  "reason": "Assignment inside condition — return x=y semantics, ternary assignments" },
-    { "rule": "javascript:S7735", "issues": 64,  "reason": "Negated condition — requires branch inversion, context-dependent" },
-    { "rule": "javascript:S4138", "issues": 33,  "reason": "for → for-of — labeled loops and index-dependent bodies in sample" },
-    { "rule": "javascript:S1788", "issues": 17,  "reason": "Default params last — function signature change, all callers must update" },
-    { "rule": "javascript:S1871", "issues": 13,  "reason": "Same code in both branches — requires logic refactor or condition merge" }
-  ],
-  "codemodInventory": [
-    { "file": "window-to-globalthis.js", "rules": ["S6507","S6777","S7764"], "tier": 1 },
-    { "file": "no-var.js",               "rules": ["S3504"],                 "tier": 1 },
-    { "file": "replaceall.js",           "rules": ["S7781"],                 "tier": 1 },
-    { "file": "number-parseint.js",      "rules": ["S7773"],                 "tier": 1, "notes": "Extended: isNaN→Number.isNaN" },
-    { "file": "optional-chain.js",       "rules": ["S6582"],                 "tier": 1 },
-    { "file": "fix-empty-catch.js",      "rules": ["S2486"],                 "tier": 1 },
-    { "file": "eqeqeq.js",              "rules": ["S1940","S3403"],          "tier": 1 },
-    { "file": "no-identical-expr.js",    "rules": ["S1764"],                 "tier": 1 },
-    { "file": "no-empty-stmt.js",        "rules": ["S1116"],                 "tier": 1 },
-    { "file": "no-typo-op.js",           "rules": ["S6606"],                 "tier": 1 },
-    { "file": "dataset.js",              "rules": ["S7761"],                 "tier": 1, "notes": "getAttribute('data-*')→.dataset.* (kebab-case)" },
-    { "file": "nullish-default.js",      "rules": ["S6644"],                 "tier": 1, "notes": "x?x:y → x??y" },
-    { "file": "no-double-negation.js",   "rules": ["S6509"],                 "tier": 1, "notes": "!!x → Boolean(x)" },
-    { "file": "no-bool-literal.js",      "rules": ["S1125"],                 "tier": 1, "notes": "x===true → x" },
-    { "file": "date-now.js",             "rules": ["S7759"],                 "tier": 1, "notes": "new Date().getTime() → Date.now()" },
-    { "file": "no-self-assign.js",       "rules": ["S7740"],                 "tier": 1, "notes": "self=this removal" },
-    { "file": "array-methods.js",        "rules": ["S7765","S7754","S7755","S7750"], "tier": 1, "notes": "includes/some/at/find modernization" },
-    { "file": "math-methods.js",         "rules": ["S7767","S7766"],         "tier": 1, "notes": "~~→trunc, ternary→Math.max/min" },
-    { "file": "dom-methods.js",          "rules": ["S7762"],                 "tier": 1, "notes": "removeChild→.remove()" },
-    { "file": "no-redundant-jump.js",    "rules": ["S3626"],                 "tier": 1, "notes": "redundant return/continue at block end" },
-    { "file": "regexp-literal.js",       "rules": ["S6325"],                 "tier": 1, "notes": "new RegExp('lit')→/lit/" },
-    { "file": "regexp-charclass.js",     "rules": ["S6353"],                 "tier": 1, "notes": "[0-9]→\\d, [^0-9]→\\D" },
-    { "file": "return-boolean.js",       "rules": ["S1126"],                 "tier": 1 },
-    { "file": "no-unused-imports.js",    "rules": ["S1128"],                 "tier": 1 },
-    { "file": "no-unreachable.js",       "rules": ["S1763"],                 "tier": 1 },
-    { "file": "no-dead-assign.js",       "rules": ["S1854"],                 "tier": 2 },
-    { "file": "no-unused-vars.js",       "rules": ["S1481"],                 "tier": 2 },
-    { "file": "no-useless-spread.js",    "rules": ["S3257"],                 "tier": 2 },
-    { "file": "no-useless-concat.js",    "rules": ["S6853"],                 "tier": 2 },
-    { "file": "no-redundant-escape.js",  "rules": ["S6535"],                 "tier": 2, "notes": "Remove unnecessary \\ from regex chars with no special meaning" },
-    { "file": "no-multi-push.js",        "rules": ["S7778"],                 "tier": 2, "notes": "Merge consecutive push/classList.add into single multi-arg call" },
-    { "file": "else-if.js",              "rules": ["S6660"],                 "tier": 2, "notes": "else { if } → else if (structural collapse)" }
-  ]
+  "batches": [],
+  "rules": []
 }
