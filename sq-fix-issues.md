@@ -56,7 +56,6 @@ TIER 3 — HUMAN REVIEW
 | javascript:S1116 | Empty statement (lone `;`) | ESLint --fix | `no-empty` |
 | javascript:S1128 | Unused import/require | ESLint --fix | `no-unused-vars` |
 | javascript:S1481 | Unused local variable | ESLint --fix | `no-unused-vars` |
-| javascript:S125  | Commented-out code | ESLint --fix | `no-commented-out-code` |
 | javascript:S1110 | Redundant parentheses | ESLint --fix | `no-extra-parens` |
 
 > **Why AST/codemod instead of AI for these?**
@@ -85,7 +84,6 @@ TIER 3 — HUMAN REVIEW
 
 | Rule | Reason |
 |---|---|
-| javascript:S3776 | Cognitive complexity — real refactor needed |
 | javascript:S1067 | Expression complexity — logic restructure |
 | javascript:S2201 | Return value ignored — likely intentional |
 | javascript:S5852 | Regex DoS — security risk assessment required |
