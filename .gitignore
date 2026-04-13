@@ -1,0 +1,4 @@
+mcp.json
+sonarqube-fix.config.json
+.sonarqube_fix_progress.json
+node_modules/
