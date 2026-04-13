@@ -68,7 +68,7 @@ module.exports = function (fileInfo, api) {
     quasiStrings.push(current);
 
     const quasis = quasiStrings.map((str, i) =>
-      j.templateElement({ raw: str.replace(/`/g, '\\`'), cooked: str }, i === quasiStrings.length - 1)
+      j.templateElement({ raw: str.replaceAll('`', '\\`'), cooked: str }, i === quasiStrings.length - 1)
     );
 
     j(path).replaceWith(j.templateLiteral(quasis, templateExpressions));

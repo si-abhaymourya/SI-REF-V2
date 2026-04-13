@@ -4,8 +4,6 @@
  * e.g. a === a → true, b !== b → false (NaN check — keep), x && x → x
  * Conservative: only replaces obvious cases, skips NaN patterns
  */
-const { generate } = require('recast').printer ? require('recast') : { generate: null };
-
 module.exports = function (fileInfo, api) {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);

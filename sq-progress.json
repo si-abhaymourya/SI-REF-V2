@@ -1,47 +1,175 @@
 {
-  "project": "wm-si-wafjs3.0",
-  "baseline": 5300,
-  "startedAt": "2026-04-11",
-  "lastRun": "2026-04-11T08:13:46.065Z",
+  "lastRun": "2026-04-13T04:31:50.226Z",
   "byRule": {
     "javascript:S3504": {
-      "fixed": 23,
-      "runs": 2,
-      "lastCodemod": "no-var",
-      "note": "14 JS (jscodeshift) + 9 Vue (eslint)"
-    },
-    "javascript:S1940": {
-      "fixed": 51,
-      "runs": 2,
-      "lastCodemod": "eqeqeq",
-      "note": "42 JS (jscodeshift) + 9 Vue (eslint)"
-    },
-    "javascript:S1116": {
-      "fixed": 4,
+      "fixed": 12,
       "runs": 1,
-      "lastCodemod": "no-empty-stmt"
+      "lastCodemod": "no-var"
     },
-    "javascript:S6853": {
-      "fixed": 19,
-      "runs": 1,
-      "lastCodemod": "no-useless-concat"
-    },
-    "javascript:S1481": {
-      "fixed": 34,
-      "runs": 2,
-      "lastCodemod": "no-unused-vars"
-    },
-    "javascript:S1854": {
-      "fixed": 8,
-      "runs": 2,
-      "lastCodemod": "no-dead-assign"
-    },
-    "javascript:S6777": {
-      "fixed": 48,
+    "javascript:S7764": {
+      "fixed": 47,
       "runs": 1,
       "lastCodemod": "window-to-globalthis"
+    },
+    "javascript:S7781": {
+      "fixed": 15,
+      "runs": 1,
+      "lastCodemod": "replaceall"
+    },
+    "javascript:S7773": {
+      "fixed": 18,
+      "runs": 2,
+      "lastCodemod": "number-parseint"
+    },
+    "javascript:S2486": {
+      "fixed": 32,
+      "runs": 2,
+      "lastCodemod": "fix-empty-catch"
+    },
+    "javascript:S1940": {
+      "fixed": 2,
+      "runs": 1,
+      "lastCodemod": "eqeqeq"
+    },
+    "javascript:S3403": {
+      "fixed": 1,
+      "runs": 1,
+      "lastCodemod": "eqeqeq"
+    },
+    "javascript:S6582": {
+      "fixed": 29,
+      "runs": 1,
+      "lastCodemod": "optional-chain"
+    },
+    "javascript:S1126": {
+      "fixed": 6,
+      "runs": 1,
+      "lastCodemod": "return-boolean"
+    },
+    "javascript:S1763": {
+      "fixed": 5,
+      "runs": 1,
+      "lastCodemod": "no-unreachable"
+    },
+    "javascript:S1128": {
+      "fixed": 13,
+      "runs": 1,
+      "lastCodemod": "no-unused-imports"
+    },
+    "javascript:S7761": {
+      "fixed": 14,
+      "runs": 1,
+      "lastCodemod": "dataset"
+    },
+    "javascript:S6644": {
+      "fixed": 16,
+      "runs": 1,
+      "lastCodemod": "nullish-default"
+    },
+    "javascript:S6509": {
+      "fixed": 15,
+      "runs": 1,
+      "lastCodemod": "no-double-negation"
+    },
+    "javascript:S1125": {
+      "fixed": 14,
+      "runs": 1,
+      "lastCodemod": "no-bool-literal"
+    },
+    "javascript:S7759": {
+      "fixed": 10,
+      "runs": 1,
+      "lastCodemod": "date-now"
+    },
+    "javascript:S7740": {
+      "fixed": 1,
+      "runs": 1,
+      "lastCodemod": "no-self-assign"
+    },
+    "javascript:S7765": {
+      "fixed": 4,
+      "runs": 2,
+      "lastCodemod": "array-methods"
+    },
+    "javascript:S7754": {
+      "fixed": 8,
+      "runs": 2,
+      "lastCodemod": "array-methods"
+    },
+    "javascript:S7755": {
+      "fixed": 2,
+      "runs": 1,
+      "lastCodemod": "array-methods"
+    },
+    "javascript:S3626": {
+      "fixed": 3,
+      "runs": 1,
+      "lastCodemod": "no-redundant-jump"
+    },
+    "javascript:S7767": {
+      "fixed": 2,
+      "runs": 1,
+      "lastCodemod": "math-methods"
+    },
+    "javascript:S7766": {
+      "fixed": 4,
+      "runs": 1,
+      "lastCodemod": "math-methods"
+    },
+    "javascript:S7762": {
+      "fixed": 3,
+      "runs": 1,
+      "lastCodemod": "dom-methods"
+    },
+    "javascript:S6325": {
+      "fixed": 6,
+      "runs": 1,
+      "lastCodemod": "regexp-literal"
+    },
+    "javascript:S6353": {
+      "fixed": 5,
+      "runs": 1,
+      "lastCodemod": "regexp-charclass"
+    },
+    "javascript:S6535": {
+      "fixed": 12,
+      "runs": 2,
+      "lastCodemod": "no-redundant-escape"
+    },
+    "javascript:S7778": {
+      "fixed": 3,
+      "runs": 1,
+      "lastCodemod": "no-multi-push"
+    },
+    "javascript:S6660": {
+      "fixed": 16,
+      "runs": 1,
+      "lastCodemod": "else-if"
+    },
+    "javascript:S3358": {
+      "fixed": 20,
+      "runs": 3,
+      "lastCodemod": "flatten-ternary"
+    },
+    "javascript:S1121": {
+      "fixed": 30,
+      "runs": 2,
+      "lastCodemod": "no-assign-in-condition"
+    },
+    "javascript:S905": {
+      "fixed": 35,
+      "runs": 2,
+      "lastCodemod": "no-dead-expr"
+    },
+    "javascript:S7735": {
+      "fixed": 20,
+      "runs": 2,
+      "lastCodemod": "no-negated-condition"
+    },
+    "javascript:S4138": {
+      "fixed": 12,
+      "runs": 3,
+      "lastCodemod": "for-of"
     }
-  },
-  "fixed": [],
-  "skipped": []
+  }
 }
